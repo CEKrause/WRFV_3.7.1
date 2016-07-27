@@ -1,0 +1,19 @@
+#!/bin/tcsh
+#PBS -P w85
+#PBS -l walltime=24:00:00
+#PBS -l mem=128GB
+#PBS -l ncpus=64
+#PBS -j oe
+#PBS -q normal
+#PBS -l wd
+#PBS -m abe
+#PBS -M claire.krause@ga.gov.au
+
+module purge
+module load openmpi/1.8.8
+module load netcdf/4.3.3.1
+
+limit stacksize unlimited
+
+echo running with $PBS_NCPUS mpi ranks
+time mpirun -np $PBS_NCPUS -report-bindings ./tc.exe
