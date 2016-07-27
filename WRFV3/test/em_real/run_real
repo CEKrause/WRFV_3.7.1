@@ -1,0 +1,21 @@
+#!/bin/tcsh
+#PBS -l walltime=00:10:00
+#PBS -l mem=5GB
+#PBS -l ncpus=1
+#PBS -j oe
+#PBS -q express
+#PBS -l wd
+#PBS -m abe
+#PBS -M claire.krause@ga.gov.au
+
+module purge
+module load openmpi/1.8.8
+module load netcdf/4.3.3.1
+export WRFIO_NCD_LARGE_FILE_SUPPORT=1
+export JASPERINC=/usr/include
+export JASPERLIB=/usr/lib64
+
+limit stacksize unlimited
+
+echo running with $PBS_NCPUS mpi ranks
+time mpirun -np $PBS_NCPUS -report-bindings ./real.exe
