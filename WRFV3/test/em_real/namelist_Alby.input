@@ -52,7 +52,7 @@
  num_metgrid_levels 	 	     = 18,
  num_metgrid_soil_levels	     = 0,
  use_surface			     = .true.,
- sfcp_to_sfcp			     = .true.,
+ lowest_lev_from_sfc		     = .false.,
 /
 
 &physics
@@ -96,17 +96,11 @@
 /
 
 &bdy_control
- periodic_x                          = .true.,
- symmetric_xs                        = .false.,
- symmetric_xe                        = .false.,
- open_xs                             = .false.,
- open_xe                             = .false.,
- periodic_y                          = .true.,
- symmetric_ys                        = .false.,
- symmetric_ye                        = .false.,
- open_ys                             = .false.,
- open_ye                             = .false.,
- nested                              = .false.,.true.,.true.,
+ spec_bdy_width                      = 5,
+ spec_zone                           = 1,
+ relax_zone                          = 5,
+ specified                           = .true., .false.,.false.,
+ nested                              = .false., .true., .true.,
 /
 
 &grib2
