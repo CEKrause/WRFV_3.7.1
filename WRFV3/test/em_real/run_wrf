@@ -16,4 +16,4 @@ module load netcdf/4.3.3.1
 limit stacksize unlimited
 
 echo running with $PBS_NCPUS mpi ranks
-time mpirun -np $PBS_NCPUS -report-bindings ./tc.exe
+time mpirun -np $PBS_NCPUS -report-bindings ./wrf.exe
