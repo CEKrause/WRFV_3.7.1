@@ -23,12 +23,12 @@
  io_form_restart                     = 2
  io_form_input                       = 2
  io_form_boundary                    = 2
- debug_level                         = 100
+ debug_level                         = 1000
  interval_seconds		     = 21600,
 /
 
 &domains
- time_step                           = 240, 
+ time_step                           = 120, 
  time_step_fract_num                 = 0, 
  time_step_fract_den                 = 1, 
  max_dom                             = 3, 
@@ -57,17 +57,22 @@
 
 &physics
  mp_physics                    	     = 4, 4, 4,
- ra_lw_physics                       = 1, 1, 1,
- ra_sw_physics                       = 1, 1, 1,
- radt                                = 36, 36, 36,
- sf_sfclay_physics                   = 1, 1, 1,
+ ra_lw_physics                       = 4, 4, 4,
+ ra_sw_physics                       = 4, 4, 4,
+ radt                                = 30, 30, 30,
+ sf_sfclay_physics                   = 91, 91, 91,
  sf_surface_physics                  = 1, 1, 1,
  bl_pbl_physics                      = 1, 1, 1,
  bldt                                = 0, 0, 0,
- cu_physics                          = 1, 1, 0,
+ cu_physics                          = 99, 99, 0,
  cudt                                = 0,
  num_soil_layers                     = 5,
  isftcflx                            = 2,
+ maxiens 			     = 1,
+ maxens 			     = 3,
+ maxens2 			     = 3,
+ maxens3 			     = 16,
+ ensdim 			     = 144,
 /
 
 &fdda
@@ -99,7 +104,7 @@
  spec_bdy_width                      = 5,
  spec_zone                           = 1,
  relax_zone                          = 5,
- specified                           = .true., .false.,.false.,
+ specified                           = .true.,
  nested                              = .false., .true., .true.,
 /
 
