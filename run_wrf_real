@@ -1,0 +1,85 @@
+#!/bin/bash
+#PBS -Pw85
+#PBS -l walltime=2:00:00
+#PBS -l mem=128GB
+#PBS -l ncpus=32
+#PBS -j oe
+#PBS -q normal
+#PBS -m abe
+#PBS -M craig.arthur@ga.gov.au
+
+module purge
+module load openmpi/1.6.3
+module load netcdf/4.3.3.1
+
+
+# Base directory for the WRF install:
+WRF_ROOT=/short/$PROJECT/$USER/WRFV_3.7.1/WRFV3
+
+# Case: "test/em_<test_case>" or "test/em_real"
+CASE=test/em_real
+
+# Namelist for the simulation:
+NAMELIST=$HOME/namelists/namelist_Alby.input
+SOUNDING=$HOME/namelists/input_sounding
+
+# Check the executable exists before trying to run it
+if [ ! -f "$WRF_ROOT/$CASE/wrf.exe" ]; then
+    echo "wrf.exe doesnt exist for $CASE"
+    echo "You need to compile the test case first"
+    # Kill the job, reporting command not found 
+    exit 127
+fi
+
+# Simulation: one of the test cases available in the WRF code, or "em_real"
+SIMULATION=emreal
+
+# Where the simulation output will be stored:
+RUNDIR=/short/$PROJECT/$USER/$SIMULATION
+
+if [ ! -d "$RUNDIR" ]; then
+    mkdir "$RUNDIR"
+fi
+
+cd $RUNDIR
+
+echo "Setting up test case by linking data files into the run directory"
+
+echo "linking to LANDUSE.TBL in $WRF_ROOT/run directory"
+
+ln -sf $WRF_ROOT/run/LANDUSE.TBL .
+ln -sf $WRF_ROOT/run/RRTM_DATA .
+
+echo "linking to ozone tables in $WRF_ROOT/run directory"
+
+ln -sf $WRF_ROOT/run/ozone.formatted .
+ln -sf $WRF_ROOT/run/ozone_lat.formatted .
+ln -sf $WRF_ROOT/run/ozone_plev.formatted .
+
+echo "linking RRTM tables in $WRF_ROOT/run directory"
+
+ln -sf $WRF_ROOT/run/RRTMG_LW_DATA .
+ln -sf $WRF_ROOT/run/RRTMG_SW_DATA .
+ln -sf $WRF_ROOT/run/RRTMG_LW_DATA_DBL .
+ln -sf $WRF_ROOT/run/RRTMG_SW_DATA_DBL .
+
+echo "linking soil tables in $WRF_ROOT/run directory"
+
+ln -sf $WRF_ROOT/run/SOILPARM.TBL .
+ln -sf $WRF_ROOT/run/VEGPARM.TBL .
+ln -sf $WRF_ROOT/run/GENPARM.TBL .
+
+echo "linking namelist file"
+ln -sf $NAMELIST ./namelist.input
+ln -sf $SOUNDING ./input_sounding
+
+ulimit -s unlimited
+
+echo running with $PBS_NCPUS mpi ranks
+time mpirun -np $PBS_NCPUS -report-bindings $WRF_ROOT/$CASE/wrf.exe
+
+OUT=$?
+if [ $OUT -ne 0 ]; then
+   echo "Execution returned non-zero exit status ($OUT)"
+   echo "Check rsl.out and rsl.error files in $RUNDIR"
+fi
