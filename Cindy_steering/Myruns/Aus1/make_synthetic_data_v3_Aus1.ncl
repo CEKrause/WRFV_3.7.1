@@ -1,8 +1,10 @@
 begin
 
+   ;load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"
+
    idealDIR = "/short/w85/cek156/WRFV_3.7.1/WRFV3/test/em_tropical_cyclone/"
    idealDATE = "1989-04-01_00"
-   idealRAD = 460.
+   idealRAD = 800. ; km
    metemDIR = "/short/w85/cek156/WRFV_3.7.1/WPS/"
 
    iSC = 250		; where you want to storm placed in real
@@ -73,6 +75,9 @@ begin
    system ( "cp " + metemDIR + "met_em.d01." + idealDATE + ":00:00.nc met_em.d01." + idealDATE + ":00:00_original.nc " )
    system ( "cp met_em.d01." + idealDATE + ":00:00_original.nc " + metFILE )
 
+   ;system ( "module load nco" )
+   ;system ( "ncrcat -v RH -x " + metFILE + " " + metFILE )
+
    metem = addfile(metFILE,"w")
    landmask = metem->LANDMASK
 
@@ -86,16 +91,17 @@ begin
      var_dims = dimsizes(var_synthetic)
 
      if ( vNames(n) .eq. "PMSL" ) then
-       var_avg = avg(var_synthetic(:,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
+       var_avg = avg(var_synthetic(:,jAVG-5:jAVG+5,iAVG-5:iAVG+5))		; 1
        print("   Repalcing " + vNames(n) )
-       var_ideal = ideal->AFWA_MSLP
+       var_ideal = ideal->AFWA_MSLP 						; 1,250,250
        var_ideal = distance_mask*var_ideal
        var_ideal = where ( var_ideal .eq. 0. , var_avg , var_ideal)
-       var_synthetic = var_avg
+       var_synthetic(:,:,:) = var_avg	 					; var_synthetic = 1,500,500
        var_synthetic(:,start_j:end_j,start_i:end_i) = var_ideal
        metem->$vNames(n)$ = var_synthetic
        delete(var_ideal)
      end if
+
      if ( vNames(n) .eq. "PSFC" ) then
        print("   Repalcing " + vNames(n) )
        var_avg = avg(var_synthetic(:,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
@@ -103,14 +109,15 @@ begin
        var_ideal = distance_mask*var_ideal
        var_ideal = where ( var_ideal .eq. 0. , var_avg , var_ideal)
        foo = var_synthetic
-       foo = var_avg
+       foo(:,:,:) = var_avg
        foo(:,start_j:end_j,start_i:end_i) = var_ideal
-       var_synthetic = where( landmask .eq. 1. , var_synthetic , foo )  	; keep land
+       var_synthetic = where( landmask .eq. 1. , var_synthetic , foo )  	; keep land - was var_synthetic , foo
        delete(foo)
        metem->$vNames(n)$ = var_synthetic
        delete(var_ideal)
      end if
-     if ( vNames(n) .eq. "SKINTEMP" ) then
+ 
+    if ( vNames(n) .eq. "SKINTEMP" ) then
        print("   Repalcing " + vNames(n) )
        var_synthetic = where( landmask .eq. 1. , var_synthetic , sst )  	; keep land
        metem->$vNames(n)$ = var_synthetic
@@ -125,7 +132,7 @@ begin
        delete(foo)
        var_synthetic(:,0,:,:) = where( landmask .eq. 1. , var_synthetic(:,0,:,:) , var_avg )  	; keep land
        var_ideal = ideal3D->GHT_PL
-       do kk = 1,23
+       do kk = 1,60	; fix code here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          var_avg = avg(var_synthetic(:,kk,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
          var_ideal(:,kk-1,:,:) = distance_mask*var_ideal(:,kk-1,:,:)
          var_ideal(:,kk-1,:,:) = where ( var_ideal(:,kk-1,:,:) .eq. 0. , var_avg , var_ideal(:,kk-1,:,:))
@@ -133,7 +140,7 @@ begin
          var_synthetic(:,kk,:,:) = var_avg
          var_synthetic(:,kk,start_j:end_j,start_i:end_i) = var_ideal(:,kk-1,:,:)
        end do
-       do kk = 24,var_dims(1)-1
+       do kk = 61,var_dims(1)-1 	; fix code here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          var_avg = avg(var_synthetic(:,kk,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
          var_synthetic(:,kk,:,:) = var_avg
        end do
@@ -141,75 +148,28 @@ begin
        delete(var_ideal)
      end if
 
-     if ( vNames(n) .eq. "RH" ) then
-       print("   Repalcing " + vNames(n) )
-       var_avg = avg(var_synthetic(:,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
-       if ( vNames(n) .eq. "TT" ) then
-         var_ideal = ideal->T2
-       end if
-       if ( vNames(n) .eq. "UU" ) then
-         var_avg = U_avg(ii)
-         var_ideal = ideal->U10
-       end if
-       if ( vNames(n) .eq. "VV" ) then
-         var_avg = V_avg(ii)
-         var_ideal = ideal->V10
-       end if
-       if ( vNames(n) .eq. "RH" ) then
-         var_ideal = ideal->Q2
-         t2 = ideal->T2
-         psfc = ideal->AFWA_MSLP
-         q2 = var_ideal
-         tmp1 = var_ideal
-         tmp2 = var_ideal
-         tmp1 = 10.*0.6112*exp(17.67*(t2-273.16)/(t2-29.65))
-         tmp2 = 0.622*tmp1/(0.01 * psfc -  (1.-0.622)*tmp1)
-         var_ideal = q2/tmp2
-         var_ideal = where ( var_ideal .gt. 1.0 , 1.0 , var_ideal)
-         var_ideal = where ( var_ideal .lt. 0.0 , 0.0 , var_ideal)
-         var_ideal = 100.*var_ideal
-         delete ( ([/t2,psfc,q2,tmp1,tmp2/]) )
-       end if
-       var_ideal = distance_mask*var_ideal
-       var_ideal = where ( var_ideal .eq. 0. , var_avg , var_ideal)
-       var_synthetic(:,:,:) = var_avg
-       var_synthetic(:,start_j:end_j,start_i:end_i) = var_ideal
-       delete(var_ideal)
-       if ( vNames(n) .eq. "TT" ) then
-         var_ideal = ideal3D->T_PL
-       end if
-       if ( vNames(n) .eq. "UU" ) then
-         var_ideal = ideal3D->U_PL
-       end if
-       if ( vNames(n) .eq. "VV" ) then
-         var_ideal = ideal3D->V_PL
-       end if
-       if ( vNames(n) .eq. "RH" ) then
-         var_ideal = ideal3D->RH_PL
-       end if
-       var_synthetic(:,:,:) = var_synthetic(:,:,:)
-
-       metem->$vNames(n)$ = var_synthetic
-       delete(var_ideal)
-     end if
-
-
-     if ( vNames(n) .eq. "TT" .or. vNames(n) .eq. "UU" .or. vNames(n) .eq. "VV" ) then
+     if ( vNames(n) .eq. "TT" .or. vNames(n) .eq. "UU" .or. vNames(n) .eq. "VV" .or. vNames(n) .eq. "RH") then
        print("   Repalcing " + vNames(n) )
        var_avg = avg(var_synthetic(:,0,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
        if ( vNames(n) .eq. "TT" ) then
          var_ideal = ideal->T2
+         ;var_ideal!2 = "west_east_stag"
        end if
        if ( vNames(n) .eq. "UU" ) then
          var_avg = U_avg(ii)
          var_ideal = ideal->U10
+         ;var_ideal!2 = "west_east_stag"
        end if
        if ( vNames(n) .eq. "VV" ) then
          var_avg = V_avg(ii)
          var_ideal = ideal->V10
+         ;var_ideal!2 = "west_east_stag"
+         ;aaa=getvardims(var_ideal)
+         ;print("vardims VV = " + aaa)
        end if
        if ( vNames(n) .eq. "RH" ) then
          var_ideal = ideal->Q2
+         ;var_ideal!2 = "west_east_stag"
          t2 = ideal->T2
          psfc = ideal->AFWA_MSLP
          q2 = var_ideal
@@ -224,9 +184,11 @@ begin
          delete ( ([/t2,psfc,q2,tmp1,tmp2/]) )
        end if
        var_ideal = distance_mask*var_ideal
+       ;aaa=getvardims(var_ideal)
+       ;print("vardims VV = " + aaa)
        var_ideal = where ( var_ideal .eq. 0. , var_avg , var_ideal)
-       var_synthetic(:,0,:,:) = var_avg
-       var_synthetic(:,0,start_j:end_j,start_i:end_i) = var_ideal
+       var_synthetic(:,0,:,:) = var_avg      
+       var_synthetic(:,0,start_j:end_j,start_i:end_i) = (/var_ideal/)
        delete(var_ideal)
        if ( vNames(n) .eq. "TT" ) then
          var_ideal = ideal3D->T_PL
@@ -243,7 +205,7 @@ begin
 
        var_synthetic(:,1,:,:) = var_synthetic(:,0,:,:)
 
-       do kk = 2,23
+       do kk = 2,60	; fix code here!!!!!!!!!!!!!!!!!!!!!!
          var_avg = avg(var_synthetic(:,kk,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
          if ( vNames(n) .eq. "UU" ) then
            var_avg = U_avg(ii)
@@ -258,9 +220,9 @@ begin
            var_ideal(:,kk-1,:,:) = where ( var_ideal(:,kk-1,:,:) .lt.  var_avg/2. , var_avg , var_ideal(:,kk-1,:,:))
          end if
          var_synthetic(:,kk,:,:) = var_avg
-         var_synthetic(:,kk,start_j:end_j,start_i:end_i) = var_ideal(:,kk-1,:,:)
+         var_synthetic(:,kk,start_j:end_j,start_i:end_i) = (/var_ideal(:,kk-1,:,:)/)
        end do
-       do kk = 24,var_dims(1)-1
+       do kk = 61,var_dims(1)-1 	; fix code here!!!!!!!!!!!!!!!!!!!
          var_avg = avg(var_synthetic(:,kk,jAVG-5:jAVG+5,iAVG-5:iAVG+5))
          if ( vNames(n) .eq. "UU" ) then
            var_avg = U_avg(ii)
