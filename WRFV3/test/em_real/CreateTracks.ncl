@@ -140,8 +140,8 @@ begin
 
   do i=0,dimsizes(wnd)-1
     if ( wnd(i) .eq. -1.0 ) then
-      lat(i) = 30.
-      lon(i) = -80.
+      lat(i) = -20.
+      lon(i) = -110.
     end if
   end do
   min_lat = min(lat)
@@ -222,7 +222,7 @@ begin
 ;
   res@tmXBMajorOutwardLengthF     = 0.0
   res@tmXBMajorLengthF            = 0.0
-  res@tmXBLabelFontHeightF    =     0.007
+  res@tmXBLabelFontHeightF    =     0.01
 
 end
 
@@ -265,13 +265,13 @@ begin
     cr = "~C~"
 
   ; Placement of the time info
-    slon = tkres@max_lon - 0.2
-    slat = tkres@max_lat - 0.2
+    slon = tkres@max_lon - 0.25
+    slat = tkres@max_lat - 0.25
 
     txres                       = True
     txres@txFont                = "helvetica-bold"
     txres@txFontColor           = "Black"
-    txres@txFontHeightF         = 0.01
+    txres@txFontHeightF         = 0.015
     txres@txPerimOn             = True
     txres@txPerimColor          = "Black"
     txres@txJust                = "TopRight"
@@ -307,7 +307,7 @@ begin
   xoffset = 0.0
   yoffset = 0.0
   ratio   = 1.0
-  size    = 1.0
+  size    = 1.5
   angle   = 0.0
 
   new_index = NhlNewMarker(wks, mstring, fontnum, xoffset, yoffset, \
@@ -325,7 +325,7 @@ begin
   xoffset = 0.0
   yoffset = 0.0
   ratio   = 1.0
-  size    = 1.0
+  size    = 1.5
   angle   = 0.0
 
   new_index = NhlNewMarker(wks, mstring, fontnum, xoffset, yoffset, \
@@ -371,9 +371,9 @@ begin
       filename = tkres@filename
 
       ; Read lat/lon speed and pressure
-      lat = stringtofloat(systemfunc("cut -c29-34 " + filename))
-      lon = stringtofloat(systemfunc("cut -c35-43 " + filename))
-      lev = stringtofloat(systemfunc("cut -c44-50 " + filename))
+      lat = stringtofloat(systemfunc("cut -c26-34 " + filename))
+      lon = stringtofloat(systemfunc("cut -c35-42 " + filename))
+      lev = stringtofloat(systemfunc("cut -c43-50 " + filename))
       wnd = stringtofloat(systemfunc("cut -c51-57 " + filename))
       dummy = dimsizes(lat)
       fno = new( dummy , float )
@@ -456,8 +456,8 @@ begin
   if ( tkres@dataSOURCE .eq. "ARW" ) then
 
     ; Read Time stamps
-    dd = (systemfunc("cut -c15-16 " + tkres@filename))
-    hh = (systemfunc("cut -c18-19 " + tkres@filename))
+    dd = (systemfunc("cut -c14-15 " + tkres@filename))
+    hh = (systemfunc("cut -c17-18 " + tkres@filename))
     tm = dd + "/" + hh
   
   end if
@@ -480,7 +480,7 @@ begin
     ; This dataset has a full date, so we can calculate the interval of 
     ;      incoming data
       filename = tkres@filename
-      mins = stringtofloat(systemfunc("cut -c21-22 " + filename))
+      mins = stringtofloat(systemfunc("cut -c20-21 " + filename))
     ; As the first time may be wrong, we use the 2nd and 3rd times for calculations
       interval = mins(3) - mins(2)
     ; We need to know the answer as a fraction of an hour
@@ -714,6 +714,7 @@ begin
   ; We are going to draw the line every 3 hour, or every timestep, 
   ; Depending on frequency of input data
     line_int = floattoint(3/tkres@interval)   
+    ;line_int = floattoint(6/tkres@interval)
     if ( line_int .le. 1 )
       line_int = 1
     end if
@@ -775,7 +776,7 @@ begin
     ; Plot the Pressure/Wind Info to left of track line
       txres               = True
       txres@txFont        = "helvetica-bold"
-      txres@txFontHeightF = 0.009
+      txres@txFontHeightF = 0.01
       txres@txJust        = "CenterRight"
       txres@txAngleF      = tkres@textANGLE
       do i=0,dimsizes(wnd)-1,label_int
@@ -797,7 +798,7 @@ begin
       txres@txBackgroundFillColor = "White"
       txres@txPerimOn             = True
       txres@txPerimColor          = "Black"
-      txres@txFontHeightF         = 0.008
+      txres@txFontHeightF         = 0.01
       dis_marker = 0.3   ; how far must time stamp be drawn from marker
       if (tkres@textANGLE .gt. 25.)
         dis_marker = 0.1   ; how far must time stamp be drawn from marker
@@ -916,11 +917,11 @@ begin
     end if
 
   ; Placement of the legdends
-    slon = tkres@min_lon + 0.5
-    slat = tkres@min_lat + 0.5
+    slon = tkres@min_lon + 1.5
+    slat = tkres@min_lat + 1.5
 
     pmres = True
-    pmres@gsMarkerSizeF = 0.013
+    pmres@gsMarkerSizeF = 0.02
     pmres@gsMarkerIndex = create_hurricane_symbol(wks)
 
     txres               = True
@@ -969,7 +970,7 @@ begin
 
   ; Placement of the ledgends
     slon = tkres@max_lon - 2.0
-    slat = tkres@min_lat + 0.5
+    slat = tkres@min_lat + 1.5
 
     pmres               = True
     pmres@gsMarkerSizeF = 0.008
@@ -1211,22 +1212,22 @@ begin
     if (iNumFil .eq. 0) then
       ; defaults if not overwritten on the command line
       if (.not. isvar("latMIN") ) then
-        latMIN = 25.
+        latMIN = 0.
         tkres@latMINset = False
       end if
       tkres@latMIN = latMIN
       if (.not. isvar("latMAX") ) then
-        latMAX = 40.
+        latMAX = -50.
         tkres@latMAXset = False
       end if
       tkres@latMAX = latMAX
       if (.not. isvar("lonMIN") ) then
-        lonMIN = -90.
+        lonMIN = 100.
         tkres@lonMINset = False
       end if
       tkres@lonMIN = lonMIN
       if (.not. isvar("lonMAX") ) then
-        lonMAX = -75.
+        lonMAX = 130.
         tkres@lonMAXset = False
       end if
       tkres@lonMAX = lonMAX
