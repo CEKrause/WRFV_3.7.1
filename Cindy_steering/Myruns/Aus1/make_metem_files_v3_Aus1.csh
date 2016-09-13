@@ -3,7 +3,7 @@ set echo
 
 set tmpDIR = "tmpDIR"
 
-foreach case (i250_j350_spd16_dir180)
+foreach case (i250_j350_spd8_dir0)
 
   mkdir ${case}
   #set tmpDIR = "/glade/scratch/bruyerec/IAG/WRFV3.6.1_intel_dmpar/test/em_real/"${case}
@@ -33,3 +33,4 @@ foreach case (i250_j350_spd16_dir180)
   #mv ${tmpDIR}/met* /glade/scratch/bruyerec/IAG/planetCindy/${case}/.
 
 end
+
