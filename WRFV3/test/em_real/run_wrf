@@ -1,8 +1,8 @@
 #!/bin/tcsh
 #PBS -P w85
 #PBS -l walltime=24:00:00
-#PBS -l mem=128GB
-#PBS -l ncpus=64
+#PBS -l mem=512GB
+#PBS -l ncpus=256
 #PBS -j oe
 #PBS -q normal
 #PBS -l wd
