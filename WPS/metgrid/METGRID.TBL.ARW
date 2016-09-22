@@ -93,7 +93,7 @@ name=SOIL_LEVELS
         fill_lev=all:vertical_index; level_template=SOILT
 ========================================
 name=PRES
-        z_dim_name=num_metgrid_levels
+        #z_dim_name=num_metgrid_levels
         derived=yes
         mandatory=yes    # MUST HAVE THIS FIELD
         fill_lev=all:PRESSURE
