@@ -15,16 +15,16 @@
  end_hour                            = 0, 0, 0,
  end_minute                          = 00, 00, 00,
  end_second                          = 00, 00, 00,
- history_interval_m                  = 5, 360, 360,
+ history_interval_m                  = 60, 60, 60,
  frames_per_outfile                  = 1000, 1000, 1000,
  input_from_file                     = .true.,.false.,.false.,
  restart                             = .false.,
- restart_interval                    = 1440,
+ restart_interval                    = 100000,
  io_form_history                     = 2
  io_form_restart                     = 2
  io_form_input                       = 2
  io_form_boundary                    = 2
- debug_level                         = 1000
+ debug_level                         = 1
  interval_seconds		     = 21600,
 /
 
@@ -80,7 +80,7 @@
 /
 
 &dynamics
- w_damping                           = 0,
+ w_damping                           = 1,
  diff_opt                            = 1,      1,      1,
  km_opt                              = 4,      4,      4,
  diff_6th_opt                        = 0,      0,      0,
