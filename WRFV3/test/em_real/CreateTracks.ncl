@@ -307,7 +307,7 @@ begin
   xoffset = 0.0
   yoffset = 0.0
   ratio   = 1.0
-  size    = 1.5
+  size    = 1.8
   angle   = 0.0
 
   new_index = NhlNewMarker(wks, mstring, fontnum, xoffset, yoffset, \
@@ -325,7 +325,7 @@ begin
   xoffset = 0.0
   yoffset = 0.0
   ratio   = 1.0
-  size    = 1.5
+  size    = 1.8
   angle   = 0.0
 
   new_index = NhlNewMarker(wks, mstring, fontnum, xoffset, yoffset, \
@@ -806,7 +806,7 @@ begin
     end if
 
     if (tkres@plotTYPE .ge. 2)
-      txres@txFontHeightF         = 0.007
+      txres@txFontHeightF         = 0.01
       dis_marker = 0.2   ; how far must time stamp be drawn from marker
       label_int= floattoint(24/tkres@interval)   ; we will only plot these every 24 hours
     end if
@@ -829,7 +829,7 @@ begin
       txres@txBackgroundFillColor = "White"
       txres@txPerimOn             = True
       txres@txPerimColor          = "Black"
-      txres@txFontHeightF         = 0.008
+      txres@txFontHeightF         = 0.01
       forecastnumber = 0
       do i=0,dimsizes(wnd)-1,floattoint(3/tkres@interval) ; this is to find end of track line
         itest = dimsizes(wnd)-1-i
@@ -917,40 +917,40 @@ begin
     end if
 
   ; Placement of the legdends
-    slon = tkres@min_lon + 1.5
-    slat = tkres@min_lat + 1.5
+    slon = tkres@min_lon + 1.3
+    slat = tkres@min_lat + 1.2
 
     pmres = True
-    pmres@gsMarkerSizeF = 0.02
+    pmres@gsMarkerSizeF = 0.015
     pmres@gsMarkerIndex = create_hurricane_symbol(wks)
 
     txres               = True
     txres@txFont        = "helvetica-bold"
     txres@txFontColor   = "White"
-    txres@txFontHeightF = 0.008
+    txres@txFontHeightF = 0.01
 
     start_color = 5   ; our color table has Blue as color number 5
     do j=0,4          ; plot 5 color symbols
       pmres@gsMarkerColor = start_color + j
       gsn_polymarker(wks,map,slon,slat,pmres)
       gsn_text(wks,map,1+j,slon,slat,txres)
-      slon = slon + 0.5
+      slon = slon + 1.5
     end do
 
     ; Draw a box around the legend
     lnres                  = True
     lnres@gsLineColor      = "Black"
     lnres@gsLineThicknessF = 1.7
-    slat = slat + 0.4
-    gsn_polyline(wks,map,(/tkres@min_lon,slon/),(/slat+0.4,slat+0.4/),lnres)
-    gsn_polyline(wks,map,(/slon,slon/),(/slat+0.4,tkres@min_lat/),lnres)
-    slon = slon - 0.5 - 0.5 - 0.5
+    slat = slat + 0.2
+    gsn_polyline(wks,map,(/tkres@min_lon,slon/),(/slat+1,slat+1/),lnres)
+    gsn_polyline(wks,map,(/slon,slon/),(/slat+1,tkres@min_lat/),lnres)
+    slon = slon - 0.6 - 0.6 - 0.6
 
     ; Add some text
-    txres@txFontColor   = "Black"
-    txres@txFontHeightF = 0.009
-    txres@txJust        = "BottomCenter"
-    gsn_text(wks,map,"hur cat:",slon,slat,txres)
+    ;txres@txFontColor   = "Black"
+    ;txres@txFontHeightF = 0.014
+    ;txres@txJust        = "BottomCenter"
+    ;gsn_text(wks,map,"hur cat:",slon,slat,txres)
 
 end
 
@@ -969,20 +969,20 @@ begin
     cr = "~C~"
 
   ; Placement of the ledgends
-    slon = tkres@max_lon - 2.0
+    slon = tkres@max_lon - 3.5
     slat = tkres@min_lat + 1.5
 
     pmres               = True
-    pmres@gsMarkerSizeF = 0.008
+    pmres@gsMarkerSizeF = 0.01
     pmres@gsMarkerIndex = create_hurricane_symbol(wks)
     pmres@gsMarkerColor = "Black"
     gsn_polymarker(wks,map,slon,slat,pmres)
 
     txres               = True
     txres@txFont        = "helvetica-bold"
-    txres@txFontHeightF = 0.008
+    txres@txFontHeightF = 0.01
     txres@txJust        = "CenterRight"
-    sslon = slon - 0.5
+    sslon = slon - 1
     left = "pressure" + cr + "max wnd ("+tkres@DataType+")"
     gsn_text(wks,map,left,sslon,slat,txres)
 
@@ -990,7 +990,7 @@ begin
     txres@txPerimOn             = True
     txres@txJust                = "CenterLeft"
     right = "dd/hh"
-    slon = slon + 0.5
+    slon = slon + 1
     gsn_text(wks,map,right,slon,slat,txres)
 
 end
@@ -1108,7 +1108,7 @@ begin
       header = "ARW Forecast"
       stormNAME = "UnKnown"
     else
-      header = "ARW Forecast: " + stormNAME
+      header = "HWCM Run: " + stormNAME
     end if
     tkres@header = header
     tkres@stormNAME = stormNAME
