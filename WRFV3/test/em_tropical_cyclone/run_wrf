@@ -1,13 +1,15 @@
 #!/bin/tcsh
 #PBS -Pw85
-#PBS -l walltime=12:00:00
+#PBS -l walltime=03:00:00
 #PBS -l mem=64GB
-#PBS -l ncpus=64
+#PBS -l ncpus=128
 #PBS -j oe
 #PBS -q normal
 #PBS -l wd
 #PBS -m abe
 #PBS -M claire.krause@ga.gov.au
+#PBS -l other=gdata1
+
 
 module purge
 module load openmpi/1.8.8
