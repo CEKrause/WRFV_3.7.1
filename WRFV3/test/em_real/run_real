@@ -1,6 +1,6 @@
 #!/bin/tcsh
-#PBS -l walltime=00:10:00
-#PBS -l mem=5GB
+#PBS -l walltime=01:00:00
+#PBS -l mem=16GB
 #PBS -l ncpus=1
 #PBS -j oe
 #PBS -q express
